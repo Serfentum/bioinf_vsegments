@@ -13,9 +13,9 @@ def combinations(path_to_genes, path_to_heptamers, path_to_nonamers, length, mon
     :param cum_distribution: sequence - according cumulative probabilities for monomers
     :return:
     """
-    # Combine sequences from gene_cores, heptamers, create_spacer and nonamer into V-segment
+    # Combine sequences from get_sequences, heptamers, create_spacer and nonamer into V-segment
     combs = (f'{core}{heptamer}{create_spacer(length, monomers, cum_distribution)}{nonamer}'
-                    for core in gene_cores(path_to_genes)
+                    for core in get_sequences(path_to_genes)
                     for heptamer in heptamers(path_to_heptamers)
                     for nonamer in nonamers(path_to_nonamers))
     return combs

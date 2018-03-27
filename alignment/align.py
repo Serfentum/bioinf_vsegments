@@ -1,3 +1,5 @@
+import os
+import re
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -9,62 +11,88 @@ from v_segment_generation import *
 from auxiliary import *
 
 
-allele = 'CTGGGCCTGGACCCAGCAGCCCTCTGGGAAGGCGCTGGGGCACCTCAGCTCCAGGGGCAGCACACACTTCAGCCCAGCCTTTCTGGGCCAACTCTCCATCTGTAGAGACACATCCAAGGCCCAGTTATCCCTGCAGCTGAGCTCCGTGATGGCCAAGGGCAGGGCCGCACATTCCCGTGGGACACAGCG-----------------------ACACAAACG'
+# 1. Load template(s)
+# 2. Load reads
+# 3. Align all reads on each template
+# 4. List all alignments starting from the best
 
 
-def gap_function_for_template(x, y):  # x is gap position in seq, y is gap length
-    if y == 0:  # No gap
-        return 0
-    elif y == 1:  # Gap open penalty
-        return -100
-    return -10
+# According to our score function best align will have score equal to length of template i.e. sequences are identical
+# Worst is obviously 0, letters in all positions are different.
 
 
-def gap_function_for_read(x, y):  # x is gap position in seq, y is gap length
-    if y == 0:  # No gap
-        return 0
-    elif y == 1:  # Gap open penalty
-        return -100
-    return -10
+def prepare_sequences(path_to_first_file, path_to_second_file):
+    """
+    Read fasta files and return them. This function is made specially for align_one_vs_all
+    :param path_to_first_file: str - path to fasta file, by convention let`s supply here templates
+    :param path_to_second_file: str - path to fasta file, by convention let`s supply here reads
+    :return: tuple - generators with SeqRecord objects
+    """
+    # Read files
+    first = SeqIO.parse(path_to_first_file, 'fasta')
+    second = SeqIO.parse(path_to_second_file, 'fasta')
+    return first, second
 
-s = 'AATAACATTGATACTACATACCATGGTTTCACTGCATATGAAAAAATAAAAGATGATTTGTTCTAACTTTAAACATATGCACTTTCTGTTGATCTACTGTACCTCAATAGAACTGTTTTAAAATAAAAATTACAAAATTATAAGATTTATAGGTTTTAAGGTTTTATCACAGAGCAGATTTACCATAAGAAACCACAATTTCCCAAATGCTATCAATATCACAAATCTCCCCAGGACACTGTCACGTGCTCTGAGCCCCACTCTCTCCAAAGGCCTCTAACCAGAGAGCTTACTATATAGTAGGAGACATGGAAATAGAGCCCTCCCTCTGCTTATGAAAACCAGCCCAGCCCTGACCCTGCAGCTCTGGGACAGGAGCCCCAGCCCTGGGATTTTCAGGTGTTTTCATTTGGTGATCAGGACTGAACACAGAGGACCACCAAGGAGTCATGGCTGAGCTGGCTTTTTCTTGTGGCTATTTTAAAAGGTAATTCATGGAGAAATAGAAAAATTGAGTGTGAGTGGATAAGAGTGAGATAAACAGTGGATTTGTGTGGAAGTTTCTGACCAGGTTGTCTCTTTGTTTGCAGGTGTCCAGTGTGAGGTGCAGCTGGTGGAGTCTGGGGGAGGCTTGGTAAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTCAGTGACTACTACATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGTAGTACCATATACTACGCAGACTCTGTGAAGGGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCTGTGTATTACTGTGCGAGAGACACAGTGAGGGGAAGTCAGTGTGAGCCCAGACACAAACCTCCCTGCAGGGGTCCCCAGGACCACCAGGGGGCGCCCGGGACACTGTGCACGGGGCTGTCTCCAGGGCAGGTGCAGGTGCTGCTGAGGCCTGGCTTCCCTGTCATGGCCTGGGCGGCCTCGTTGTCAAATTTCTCCAGGGAACTTCTCCAGATTTACAATTCTGTACTGACATTTCATGTCTCTAAATGCAAAACTTTTTTGTTCTTTTTGTATTTTTGTTTTTGTAACAGGAGGACACACCCTCACCTCCACAGAAGCCACAGTGTCACTTTGGGGGCAGAT'
 
-sc = []
-comb = list(gene_cores())[:20]
-for i in comb:
-    k = pairwise2.align.localms(i, s, 1, -2, -5, -1)[0]
-    sc.append((k[0], k[1], float(k[2])))
+def align_one_vs_all(single, other, path_to_out='alignments_of_one_seq_vs_all', threshold=25):
+    """
+    Align one sequence versus many others, takes SeqRecord objects
+    :param single: SeqRecord - template
+    :param other: iterable - SeqRecord of reads
+    :param path_to_out: str - path to output directory
+    :param threshold: float - cutoff whether to align sequences or not
+    :return:
+    """
+    # Preparation - create output directory and compile pattern for editing sequence ids
+    os.makedirs(path_to_out, exist_ok=True)
+    pattern = re.compile(r'\s+')
 
-g = 0
-for i in sorted(sc, key=lambda x: x[2], reverse=True):
-    for t in i:
-        print(t)
-    print()
-    g += 1
-    if g > 3:
-        break
+    # For each read
+    # check score of best alignment, if it greater than cutoff
+    # align sequences
+    # write alignment to file
+    for read in other:
+        align_score = pairwise2.align.localms(single.seq, read.seq, 1, -2, -5, -1, score_only=True)
 
-quit()
+        if align_score >= threshold:
+            align = pairwise2.align.localms(single.seq, read.seq, 1, -2, -5, -1)[0]
+            als = MultipleSeqAlignment([SeqRecord(Seq(align[0], generic_dna), id=single.id),
+                                        SeqRecord(Seq(align[1], generic_dna), id=read.id)])
+
+            AlignIO.write([als], f'{path_to_out}/{re.sub(pattern, "_", read.id)}-{align_score}', 'fasta')
+
+
+def align_all_vs_all(seqs_a, seqs_b, path_to_out='alignments_of_all_vs_all', threshold=25):
+    """
+    Align each sequence from seqs_a versus all sequences from seqs_b, takes SeqRecord objects.
+    Write to files pairwise alignments with score greater or equal than cutoff.
+    :param seqs_a: iterable - pack of SeqRecord objects, by convention let`s supply here templates
+    :param seqs_b: iterable - pack of SeqRecord objects, by convention let`s supply here reads
+    :param path_to_out: str - path to output directory
+    :param threshold: float - cutoff whether to align sequences or not
+    :return:
+    """
+    # Create directory and compile pattern for naming subdirectories
+    os.makedirs(path_to_out, exist_ok=True)
+    pattern = re.compile(r'\s+')
+
+    for seq in seqs_a:
+        align_one_vs_all(seq, seqs_b, f'{path_to_out}/{re.sub(pattern, "_", seq.id)}', threshold)
+
+
+# 1st try with just 1 template made by hand
+v_segment = 'CTGGGCCTGGACCCAGCAGCCCTCTGGGAAGGCGCTGGGGCACCTCAGCTCCAGGGGCAGCACACACTTCAGCCCAGCCTTTCTGGGCCAACTCTCCATCTGTAGAGACACATCCAAGGCCCAGTTATCCCTGCAGCTGAGCTCCGTGATGGCCAAGGGCAGGGCCGCACATTCCCGTGGGACACAGCG-----------------------ACACAAACG'
+single = SeqRecord(Seq(v_segment), id='template')
+# Read few reads
 reads = SeqIO.parse('some_reads', 'fasta')
-read1 = next(reads)
-rid = read1.description
-#  gap_function_for_template, gap_function_for_read
-aa = pairwise2.align.localxs(allele, read1.seq, -5, -1)[0]
-for i, j in enumerate(aa):
-    print(i, j)
+# Read 10 v_segments
+vss, reads = prepare_sequences('10cores', 'some_reads')
+
+align_all_vs_all(vss, reads, 'ala', 12)
 
 
-ali1 = MultipleSeqAlignment([SeqRecord(Seq(aa[0], generic_dna), id='v_segment'),
-                             SeqRecord(Seq(aa[1], generic_dna), id=rid)])
-
-
-print(ali1)
-print(aa[0])
-print(aa[1])
-print(rid)
-
-
-# AlignIO.write([ali1], 'al.fa', 'fasta')
+# allele = 'CTGGGCCTGGACCCAGCAGCCCTCTGGGAAGGCGCTGGGGCACCTCAGCTCCAGGGGCAGCACACACTTCAGCCCAGCCTTTCTGGGCCAACTCTCCATCTGTAGAGACACATCCAAGGCCCAGTTATCCCTGCAGCTGAGCTCCGTGATGGCCAAGGGCAGGGCCGCACATTCCCGTGGGACACAGCG-----------------------ACACAAACG'
+# s = 'AATAACATTGATACTACATACCATGGTTTCACTGCATATGAAAAAATAAAAGATGATTTGTTCTAACTTTAAACATATGCACTTTCTGTTGATCTACTGTACCTCAATAGAACTGTTTTAAAATAAAAATTACAAAATTATAAGATTTATAGGTTTTAAGGTTTTATCACAGAGCAGATTTACCATAAGAAACCACAATTTCCCAAATGCTATCAATATCACAAATCTCCCCAGGACACTGTCACGTGCTCTGAGCCCCACTCTCTCCAAAGGCCTCTAACCAGAGAGCTTACTATATAGTAGGAGACATGGAAATAGAGCCCTCCCTCTGCTTATGAAAACCAGCCCAGCCCTGACCCTGCAGCTCTGGGACAGGAGCCCCAGCCCTGGGATTTTCAGGTGTTTTCATTTGGTGATCAGGACTGAACACAGAGGACCACCAAGGAGTCATGGCTGAGCTGGCTTTTTCTTGTGGCTATTTTAAAAGGTAATTCATGGAGAAATAGAAAAATTGAGTGTGAGTGGATAAGAGTGAGATAAACAGTGGATTTGTGTGGAAGTTTCTGACCAGGTTGTCTCTTTGTTTGCAGGTGTCCAGTGTGAGGTGCAGCTGGTGGAGTCTGGGGGAGGCTTGGTAAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTCAGTGACTACTACATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGTAGTACCATATACTACGCAGACTCTGTGAAGGGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCTGTGTATTACTGTGCGAGAGACACAGTGAGGGGAAGTCAGTGTGAGCCCAGACACAAACCTCCCTGCAGGGGTCCCCAGGACCACCAGGGGGCGCCCGGGACACTGTGCACGGGGCTGTCTCCAGGGCAGGTGCAGGTGCTGCTGAGGCCTGGCTTCCCTGTCATGGCCTGGGCGGCCTCGTTGTCAAATTTCTCCAGGGAACTTCTCCAGATTTACAATTCTGTACTGACATTTCATGTCTCTAAATGCAAAACTTTTTTGTTCTTTTTGTATTTTTGTTTTTGTAACAGGAGGACACACCCTCACCTCCACAGAAGCCACAGTGTCACTTTGGGGGCAGAT'
 
 
 

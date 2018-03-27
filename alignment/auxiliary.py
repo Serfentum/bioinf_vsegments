@@ -13,7 +13,7 @@ def create_spacer(length, monomers=('A', 'T', 'G', 'C'), cum_distribution=(0.25,
     return ''.join(random.choices(monomers, cum_weights=cum_distribution, k=length))
 
 
-def gene_cores(path_to_genes='../data/main/simple_fasta/all/ig_hv_all'):
+def get_sequences(path_to_genes='../data/main/simple_fasta/all/ig_hv_all'):
     """
     Read fasta from given path and return generator with all sequences from file
     :param path_to_genes: str - path to fasta file
