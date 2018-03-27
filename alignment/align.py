@@ -5,23 +5,8 @@ from Bio.Alphabet import generic_dna
 from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
 from Bio import pairwise2
-from v_segment_generation import combinations
-
-
-
-# allele = next(combinations())
-# next(combinations('10cores', path_to_heptamers='../data/conserve/hv7',
-# path_to_nonamers='../data/conserve/hv9',
-# monomers=('A', 'T', 'G', 'C'),
-# cum_distribution=(0.25, 0.5, 0.75, 1), length=23))
-# reads = []
-# with open('/home/arleg/PycharmProjects/igsegments/data/SRR6435693.fasta') as source:
-#     readss = SeqIO.parse(source, 'fasta')
-#     for i, read in enumerate(readss):
-#         reads.append(read)
-#         if i > 1000:
-#             break
-# SeqIO.write(reads, 'some_reads', 'fasta')
+from v_segment_generation import *
+from auxiliary import *
 
 
 allele = 'CTGGGCCTGGACCCAGCAGCCCTCTGGGAAGGCGCTGGGGCACCTCAGCTCCAGGGGCAGCACACACTTCAGCCCAGCCTTTCTGGGCCAACTCTCCATCTGTAGAGACACATCCAAGGCCCAGTTATCCCTGCAGCTGAGCTCCGTGATGGCCAAGGGCAGGGCCGCACATTCCCGTGGGACACAGCG-----------------------ACACAAACG'
@@ -42,15 +27,31 @@ def gap_function_for_read(x, y):  # x is gap position in seq, y is gap length
         return -100
     return -10
 
+s = 'AATAACATTGATACTACATACCATGGTTTCACTGCATATGAAAAAATAAAAGATGATTTGTTCTAACTTTAAACATATGCACTTTCTGTTGATCTACTGTACCTCAATAGAACTGTTTTAAAATAAAAATTACAAAATTATAAGATTTATAGGTTTTAAGGTTTTATCACAGAGCAGATTTACCATAAGAAACCACAATTTCCCAAATGCTATCAATATCACAAATCTCCCCAGGACACTGTCACGTGCTCTGAGCCCCACTCTCTCCAAAGGCCTCTAACCAGAGAGCTTACTATATAGTAGGAGACATGGAAATAGAGCCCTCCCTCTGCTTATGAAAACCAGCCCAGCCCTGACCCTGCAGCTCTGGGACAGGAGCCCCAGCCCTGGGATTTTCAGGTGTTTTCATTTGGTGATCAGGACTGAACACAGAGGACCACCAAGGAGTCATGGCTGAGCTGGCTTTTTCTTGTGGCTATTTTAAAAGGTAATTCATGGAGAAATAGAAAAATTGAGTGTGAGTGGATAAGAGTGAGATAAACAGTGGATTTGTGTGGAAGTTTCTGACCAGGTTGTCTCTTTGTTTGCAGGTGTCCAGTGTGAGGTGCAGCTGGTGGAGTCTGGGGGAGGCTTGGTAAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTCAGTGACTACTACATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGTAGTACCATATACTACGCAGACTCTGTGAAGGGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCTGTGTATTACTGTGCGAGAGACACAGTGAGGGGAAGTCAGTGTGAGCCCAGACACAAACCTCCCTGCAGGGGTCCCCAGGACCACCAGGGGGCGCCCGGGACACTGTGCACGGGGCTGTCTCCAGGGCAGGTGCAGGTGCTGCTGAGGCCTGGCTTCCCTGTCATGGCCTGGGCGGCCTCGTTGTCAAATTTCTCCAGGGAACTTCTCCAGATTTACAATTCTGTACTGACATTTCATGTCTCTAAATGCAAAACTTTTTTGTTCTTTTTGTATTTTTGTTTTTGTAACAGGAGGACACACCCTCACCTCCACAGAAGCCACAGTGTCACTTTGGGGGCAGAT'
 
+sc = []
+comb = list(gene_cores())[:20]
+for i in comb:
+    k = pairwise2.align.localms(i, s, 1, -2, -5, -1)[0]
+    sc.append((k[0], k[1], float(k[2])))
+
+g = 0
+for i in sorted(sc, key=lambda x: x[2], reverse=True):
+    for t in i:
+        print(t)
+    print()
+    g += 1
+    if g > 3:
+        break
+
+quit()
 reads = SeqIO.parse('some_reads', 'fasta')
 read1 = next(reads)
 rid = read1.description
-aa = pairwise2.align.localxc(allele, read1.seq, gap_function_for_template, gap_function_for_read)[0]
+#  gap_function_for_template, gap_function_for_read
+aa = pairwise2.align.localxs(allele, read1.seq, -5, -1)[0]
 for i, j in enumerate(aa):
     print(i, j)
-
-
 
 
 ali1 = MultipleSeqAlignment([SeqRecord(Seq(aa[0], generic_dna), id='v_segment'),
@@ -61,15 +62,10 @@ print(ali1)
 print(aa[0])
 print(aa[1])
 print(rid)
-#
-# align1 = MultipleSeqAlignment([
-#              SeqRecord(Seq("ACTGCTAGCTAG", generic_dna), id="Alpha"),
-#              SeqRecord(Seq("ACT-CTAGCTAG", generic_dna), id="Beta"),
-#              SeqRecord(Seq("ACTGCTAGDTAG", generic_dna), id="Gamma"),
-#          ])
 
 
-AlignIO.write([ali1], 'al.fa', 'fasta')
+# AlignIO.write([ali1], 'al.fa', 'fasta')
+
 
 
 
