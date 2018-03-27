@@ -12,8 +12,8 @@ results to aligner from EMBOSS.
 
 
 ## Prerequisites
-- python 3.6
-- Biopython 1.70
+- python >= 3.6
+- Biopython >= 1.70
 
 
 ## Installing
@@ -24,9 +24,9 @@ To copy everything into directory **bioinf_vsegments** type in shell:
 
 ## Usage
 For now all fuctionality is inside these scripts:
-- align.py
-- v_segment_generation.py
-- read_generation.py
+- align.py - align sequences
+- v_segment_generation.py - generate full V segments
+- read_generation.py - generate reads with noise from sequence
 
 It is subject to change. We are going to make it available for usage
 from cli, so you shouldn\`t try to use until we make everything as it

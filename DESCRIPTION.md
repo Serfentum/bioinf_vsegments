@@ -39,5 +39,8 @@ and nonamers
 ## alignment
 Files with python code for creating whole V-segments and
 aligning reads
-1. auxiliary - create random fragments, obtain sequences
+1. auxiliary.py - create random fragments, obtain sequences
 from given text and fasta files
+2. v_segment_generation.py - create full V segments
+3. read_generation.py - create reads from sequence
+4. align.py - align sequences, obtain SeqRecords from fasta
