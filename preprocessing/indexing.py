@@ -5,9 +5,9 @@ import shlex
 
 def gene_alignment_bt2_sam_bed(genes='../data/main/simple_fasta/all/ig_hv_all',
                                reference='../data/reference/igh_locus_minus_strand',
-                               output_path='preintervals'):
+                               output_path='intervals'):
     """
-    Obtain reference intervals where genes dwells. Create folder with index, sam, bam, bed and preintervals file with
+    Obtain reference intervals where genes dwells. Create folder with index, sam, bam, bed and intervals file with
     genes starts and ends.
     :param genes: str - path to aligning genes
     :param reference: str - path to reference genome
@@ -37,7 +37,7 @@ def gene_alignment_bt2_sam_bed(genes='../data/main/simple_fasta/all/ig_hv_all',
     # Create bed file from bam
     # Write name of reference, start and end intervals to tsv file
     command_bedtools = shlex.split(f'bedtools bamtobed -i {output_path}/genes.sorted.bam')
-    with open(f'{output_path}/genes.bed', 'a+') as bed, open(f'{output_path}/preintervals', 'w') as dest:
+    with open(f'{output_path}/genes.bed', 'a+') as bed, open(f'{output_path}/intervals', 'w') as dest:
         sp.check_call(command_bedtools, universal_newlines=True, stdout=bed)
         bed.seek(0)
         for line in bed:
