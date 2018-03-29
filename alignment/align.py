@@ -13,6 +13,8 @@ from auxiliary.prepare_sequences import *
 
 # According to our score function best align will have score equal to length of template i.e. sequences are identical
 # Worst is obviously 0, letters in all positions are different.
+
+
 def align_one_vs_all(single, other, path_to_out='alignments_of_one_seq_vs_all', threshold=25):
     """
     Align one sequence versus many others, takes SeqRecord objects
@@ -38,7 +40,7 @@ def align_one_vs_all(single, other, path_to_out='alignments_of_one_seq_vs_all', 
             als = MultipleSeqAlignment([SeqRecord(Seq(align[0], generic_dna), id=single.id),
                                         SeqRecord(Seq(align[1], generic_dna), id=read.id)])
 
-            AlignIO.write([als], f'{path_to_out}/{re.sub(pattern, "_", read.id)}-{align_score}', 'fasta')
+            AlignIO.write([als], os.path.join(path_to_out, f'{re.sub(pattern, "_", read.id)}-{align_score}'), 'fasta')
 
 
 def align_all_vs_all(seqs_a, seqs_b, path_to_out='alignments_of_all_vs_all', threshold=25):
@@ -56,7 +58,7 @@ def align_all_vs_all(seqs_a, seqs_b, path_to_out='alignments_of_all_vs_all', thr
     pattern = re.compile(r'\s+')
 
     for seq in seqs_a:
-        align_one_vs_all(seq, seqs_b, f'{path_to_out}/{re.sub(pattern, "_", seq.id)}', threshold)
+        align_one_vs_all(seq, seqs_b, os.path.join(path_to_out, f'{re.sub(pattern, "_", seq.id)}'), threshold)
 
 
 # 1st try with just 1 template made by hand
