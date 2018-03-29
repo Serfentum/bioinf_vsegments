@@ -9,6 +9,7 @@ def gene_alignment_bt2_sam_bed(genes='../data/main/simple_fasta/all/ig_hv_all',
     """
     Obtain reference intervals where genes dwells. Create folder with index, sam, bam, bed and intervals file with
     genes starts and ends.
+    This function need to conduct a simulation.
     :param genes: str - path to aligning genes
     :param reference: str - path to reference genome
     :param output_path: str - path to dump everything

@@ -8,32 +8,11 @@ from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
 from Bio import pairwise2
 from v_segment_generation import *
-from auxiliary import *
-
-
-# 1. Load template(s)
-# 2. Load reads
-# 3. Align all reads on each template
-# 4. List all alignments starting from the best
+from auxiliary.prepare_sequences import *
 
 
 # According to our score function best align will have score equal to length of template i.e. sequences are identical
 # Worst is obviously 0, letters in all positions are different.
-
-
-def prepare_sequences(path_to_first_file, path_to_second_file):
-    """
-    Read fasta files and return them. This function is made specially for align_one_vs_all
-    :param path_to_first_file: str - path to fasta file, by convention let`s supply here templates
-    :param path_to_second_file: str - path to fasta file, by convention let`s supply here reads
-    :return: tuple - generators with SeqRecord objects
-    """
-    # Read files
-    first = SeqIO.parse(path_to_first_file, 'fasta')
-    second = SeqIO.parse(path_to_second_file, 'fasta')
-    return first, second
-
-
 def align_one_vs_all(single, other, path_to_out='alignments_of_one_seq_vs_all', threshold=25):
     """
     Align one sequence versus many others, takes SeqRecord objects

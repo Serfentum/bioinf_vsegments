@@ -1,4 +1,7 @@
-from auxiliary import *
+from auxiliary.get_sequences import *
+from auxiliary.create_spacer import *
+from auxiliary.nonamers import *
+from auxiliary.heptamers import *
 
 
 def combinations(path_to_genes, path_to_heptamers, path_to_nonamers, length, monomers, cum_distribution):
