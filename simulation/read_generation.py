@@ -14,8 +14,8 @@ def sequencing_simulation(intervals='/home/arleg/ig_construction/data/main/inter
                           interlap_length=10, read_length=100, error_rate=0.1):
     """
     Simulate sequencing upon given sequence with specified read length and error rate.
-    Reads which overlaps with genes from intervals are marked and return separately.
-    Writes file with all unique reads and all unique overlapping with genes reads.
+    Reads which overlaps with genes from intervals are marked and return separately from non-overlapping.
+    Writes file with non-overlapped unique reads and unique overlapped with genes reads.
     :param intervals: str - path to tsv file with 3 columns - name, start and end of gene in coordinates of given sequence
     :param sequence: str - path to fasta with sequence, Ig in our case
     :param interlap_length: int - number of intersected bases in read and gene to treat read belonging to gene
@@ -35,7 +35,7 @@ def sequencing_simulation(intervals='/home/arleg/ig_construction/data/main/inter
 
     # Create sets for reads
     overlapped = set()
-    reads = set()
+    non_overlapped = set()
 
     # Iterate over sequence
     # look at intervals
@@ -46,24 +46,26 @@ def sequencing_simulation(intervals='/home/arleg/ig_construction/data/main/inter
         for interval in intervals:
             while interval[0] + interlap_length <= i < interval[1] - interlap_length:
                 read = sequence_read(sequence, i, read_length, error_rate)
-                reads.add(read)
                 overlapped.add(read)
                 i = next(it)
         read = sequence_read(sequence, i, read_length, error_rate)
-        reads.add(read)
+        non_overlapped.add(read)
 
-    return overlapped, reads
+    return overlapped, non_overlapped
 
 
 # a = sequencing_simulation('/home/arleg/ig_construction/alignment/test.int',
 #                           '/home/arleg/ig_construction/alignment/test.fa',
-#                           1, 3, 0)
-# with open('overlapped', 'w') as dest:
-#     for read in a[0]:
-#         dest.write(f'{read}\n')
-# print(f'\n***\n')
-# with open('all', 'w') as dest:
-#     for read in a[1]:
-#         dest.write(f'{read}\n')
+#                           2, 4, 0)
+
+a = sequencing_simulation()
+
+with open('overlapped', 'w') as dest:
+    for read in a[0]:
+        dest.write(f'{read}\n')
+print(f'\n***\n')
+with open('non_overlapped', 'w') as dest:
+    for read in a[1]:
+        dest.write(f'{read}\n')
 
 
