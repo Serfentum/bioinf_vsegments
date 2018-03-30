@@ -21,7 +21,7 @@ def sequencing_simulation(intervals='/home/arleg/ig_construction/data/main/inter
     :param interlap_length: int - number of intersected bases in read and gene to treat read belonging to gene
     :param read_length: int - length of reads
     :param error_rate: float - fraction of errors
-    :return:
+    :return: tuple - sets with overlapped and non-overlapped with genes reads
     """
     # Read intervals data and extract very intervals
     intervals = (interval.split('\t') for interval in read_sequences(intervals))

@@ -63,5 +63,15 @@ upper case
 intervals
 
 ## simulation
-read_generation.py - create reads from sequence separate reads
-overlapping with V genes
+1. read_generation.py - create reads from sequence, separate reads
+coming from with V genes
+2. categorize_reads.py - count overlapping and non-overlapping with
+genes reads (by condition surpass the threshold) for all specified
+thresholds
+3. reads_confusion_matrix.py - compute confusion matrix parameters
+4. precision.py - computes Precision
+5. recall.py - computes Recall
+6. false_positive_rate.py - computes False Positive Rate
+7. f_score.py - computes F-score
+8. plot_roc.py - plot ROC curve given confusion matrix parameters
+9. plot_roc_from_rates.py - plot ROC curve given TPR (Recall) and FPR

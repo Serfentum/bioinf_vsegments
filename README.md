@@ -16,6 +16,7 @@ results to aligner from EMBOSS.
     - python >= 3.6
     - Biopython >= 1.70
 2. Facultative - using in simulation
+    - numpy >= 1.14.0
     - bowtie2 >= 2.2.6
     - samtools >= 1.7
     - bedtools >= 2.25.0

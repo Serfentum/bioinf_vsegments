@@ -21,7 +21,7 @@ def categorize_reads(reads='/home/arleg/ig_construction/alignment/overlapped',
                      **kwargs):
 
     """
-    Count reads from file
+    Count overlapping and non-overlapping with genes reads from file for all thresholds from 0 up to ceil exclusively
     :param reads: str - path to file with reads
     :param genes: str - path to file with genes
     :param examples_true: boolean - whether reads was from region or not
