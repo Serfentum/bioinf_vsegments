@@ -1,5 +1,5 @@
 from Bio import pairwise2
-from .categorize_reads import categorize_reads
+from simulation.categorize_reads import categorize_reads
 
 
 # Use categorize reads 2 times and get confusion matrix for all threshold levels
@@ -11,7 +11,7 @@ def confusion_matrix(overlapped='/home/arleg/ig_construction/alignment/overlappe
                      score_function=pairwise2.align.localms,
                      *args, **kwargs):
     """
-    Get major parameters - numbers of true positive, false negative, false positive and true negative
+    Get basic parameters - numbers of true positive, false negative, false positive and true negative
     :param overlapped: str - path to file with overlapped reads
     :param nonoverlapped: str - path to file with nonoverlapped reads
     :param genes: str - path to file with genes
@@ -28,4 +28,10 @@ def confusion_matrix(overlapped='/home/arleg/ig_construction/alignment/overlappe
     return tp, fn, fp, tn
 
 
-
+# a = confusion_matrix('/home/arleg/ig_construction/alignment/test_overlap',
+#                  '/home/arleg/ig_construction/alignment/test_non_overlap',
+#                  '/home/arleg/ig_construction/alignment/test_genes.fa',
+#                  101,
+#                  pairwise2.align.localms, 1, -2, -5, -1, score_only=True)
+# for i in a:
+#     print("Characteristic:", i)
