@@ -6,8 +6,6 @@ from auxiliary.read_sequences import read_sequences
 
 # This function is made to get data for confusion matrix. Reads are scored by scoring function, after this they are
 # compared with threshold and counting. Threshold ranges from 0 to ceil inclusively.
-# Each threshold will be its own function on ROC and numbers of passed and unpassed reads - tpr and fpr rates
-# correspondingly.
 # It is possible to specify another scoring function except simple alignment score like here, yet it should make an
 # alignment first.
 

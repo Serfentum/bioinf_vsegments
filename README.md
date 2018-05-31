@@ -64,7 +64,7 @@ V-segment and afterwards for all other chains.*
 1. Langmead B, Salzberg S. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012, 9:357-359
 1. Li, H., Handsaker, B., Wysoker, A., Fennell, T., Ruan, J., Homer, N., … Durbin, R. (2009). The Sequence Alignment/Map format and SAMtools. Bioinformatics, 25(16), 2078–2079. https://doi.org/10.1093/bioinformatics/btp352
 1. Quinlan, A. R., & Hall, I. M. (2010). BEDTools: A flexible suite of utilities for comparing genomic features. Bioinformatics, 26(6), 841–842. https://doi.org/10.1093/bioinformatics/btq033
-
+1. Lefranc, M. P., Giudicelli, V., Duroux, P., Jabado-Michaloud, J., Folch, G., Aouinti, S., … Kossida, S. (2015). IMGT R, the international ImMunoGeneTics information system R 25 years on. Nucleic Acids Research, 43(D1), D413–D422. https://doi.org/10.1093/nar/gku1056
 
 ## Acknowledgements
 I\`d like to thank everybody especially Bioinformatics Institute.

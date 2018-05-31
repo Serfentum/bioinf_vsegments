@@ -60,6 +60,7 @@ def sequencing_simulation(intervals='/home/arleg/ig_construction/data/main/inter
 
 a = sequencing_simulation()
 
+# Better to make writing via '\n'.join(a[0]) but you should have enough memory for this
 with open('overlapped', 'w') as dest:
     for read in a[0]:
         dest.write(f'{read}\n')

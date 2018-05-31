@@ -4,8 +4,8 @@ Information about stored files.
 ## data
 Files with data about genes etc.
 
-Pattern for files - ig_*v or *v where star is a
-placeholder for name of chain.
+Pattern for files - ig_\*v or \*v where star is a
+placeholder for name of chain. 
 
 ### Structure
 1. conserve - folder for conserved sequences - heptamers
